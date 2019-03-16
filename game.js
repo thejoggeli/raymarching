@@ -121,7 +121,7 @@ function init(){
 	
 	// init camrea
 	Camera3d.init();
-	glMatrix.vec3.set(Camera3d.position, 0, 0, 20);
+	glMatrix.vec3.set(Camera3d.position, 0, 1.7, 10);
 	
 }
 
@@ -204,9 +204,9 @@ function onUpdate(){
 		Camera3d.position[1] -= moveSpeed * Time.deltaTime;
 	}
 	if(glMatrix.vec3.length(dir) != 0){
-		glMatrix.vec3.normalize(dir, dir);
 		glMatrix.vec3.transformQuat(dir, dir, Camera3d.rotation);
 		dir[1] = 0;
+		glMatrix.vec3.normalize(dir, dir);
 		glMatrix.vec3.scaleAndAdd(Camera3d.position, Camera3d.position, dir, Time.deltaTime*moveSpeed);			
 	}
 	// rotate camera

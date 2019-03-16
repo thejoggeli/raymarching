@@ -13,10 +13,9 @@ uniform vec4 iMods;
 float raymarch(vec3 ray_origin, vec3 ray_dir);
 vec3 light_pos = vec3(0,0,0);
 float spheres(vec3 point){
-	point.y += 1.0;
 	point = clamp(point, -5.0, 5.0) * 2.0 - point;		
-	vec4 sphere1 = vec4(0.0, 1.0, -8.0, 1.0*iMods.x);
-	vec4 sphere2 = vec4(4.5, 3.0, -6.0, 2.0);
+	vec4 sphere1 = vec4(0.0, 1.0, 8.0, 1.0*iMods.x);
+	vec4 sphere2 = vec4(4.5, 3.0, 6.0, 2.0);
 	float sd1 = length(vec3(sin(point.x)*(0.9+sin(iTime*sin(iTime*0.5)*2.5*sqrt(point.y+abs(point.x)))*0.1)*sphere1.w, mod(point.y, 2.0*iMods.x), point.z)-sphere1.xyz)-sphere1.w;
 	float sd2 = length(point-sphere2.xyz)-sphere2.w;
 	float pd = point.y;
