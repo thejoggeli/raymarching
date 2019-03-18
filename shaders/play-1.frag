@@ -1,8 +1,10 @@
+precision highp float;
+
 #define MAX_STEPS 100
-#define MAX_DIST 1000.0
+#define MAX_DIST 200.0
 #define SURF_DIST 0.01
 
-precision highp float;
+#import "util/hsl2rgb.glsl"
 
 // uniforms
 varying vec2 iCoords;
@@ -13,9 +15,8 @@ uniform vec3 iRect;
 uniform float iTime;
 uniform vec4 iMods;
 
-vec3 hsl2rgb(vec3 hsl);
-
 vec3 lightPos = vec3(0,0,0);
+vec3 fogColor;
 
 const float grid_dist = 10.0;
 
@@ -72,6 +73,10 @@ vec3 normal(vec3 p) {
 		dist(p-e.yyx));		
 	return normalize(n);
 }
+vec3 applyFog(in vec3  rgb, in float distance){
+    float fogAmount = clamp(1.0 - exp((-distance+80.0)*0.025), 0.0, 1.0);
+    return mix(rgb, fogColor, fogAmount);
+}
 float light(vec3 p) {
 //	if(length(iCamPos-p) > MAX_DIST*0.2) return 0.0;
 	vec3 l = normalize(lightPos-p);
@@ -94,39 +99,8 @@ void main() {
 //	float red = abs(floor(point.x/7.5+0.5)*0.1)*color;
 	float id = floor(point.y/grid_dist+0.5) + floor(point.z/grid_dist+0.5);
 	float hue = sin(id)*0.5+0.5;
-	gl_FragColor = vec4(hsl2rgb(vec3(hue, 0.666, color)), 1.0);
-}
-float hue2rgb(float f1, float f2, float hue) {
-	if (hue < 0.0)
-		hue += 1.0;
-	else if (hue > 1.0)
-		hue -= 1.0;
-	float res;
-	if ((6.0 * hue) < 1.0)
-		res = f1 + (f2 - f1) * 6.0 * hue;
-	else if ((2.0 * hue) < 1.0)
-		res = f2;
-	else if ((3.0 * hue) < 2.0)
-		res = f1 + (f2 - f1) * ((2.0 / 3.0) - hue) * 6.0;
-	else
-		res = f1;
-	return res;
-}
-vec3 hsl2rgb(vec3 hsl) {
-	vec3 rgb;			
-	if (hsl.y == 0.0) {
-		rgb = vec3(hsl.z); // Luminance
-	} else {
-		float f2;
-		
-		if (hsl.z < 0.5)
-			f2 = hsl.z * (1.0 + hsl.y);
-		else
-			f2 = hsl.z + hsl.y - hsl.y * hsl.z;					
-		float f1 = 2.0 * hsl.z - f2;				
-		rgb.r = hue2rgb(f1, f2, hsl.x + (1.0/3.0));
-		rgb.g = hue2rgb(f1, f2, hsl.x);
-		rgb.b = hue2rgb(f1, f2, hsl.x - (1.0/3.0));
-	}   
-	return rgb;
+	fogColor = hsl2rgb(vec3(mod(iTime*0.1, 1.0), 0.3, 0.1));
+	vec3 rgb = hsl2rgb(vec3(hue, 0.666, color));
+	rgb = applyFog(rgb, distance);	
+	gl_FragColor = vec4(rgb, 1.0);
 }

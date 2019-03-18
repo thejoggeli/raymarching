@@ -7,7 +7,9 @@
 	<title>Raymarching</title>
 	<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
 	<script src="jquery-3.2.1.min.js"></script>
+	<script src="jquery.cookie.js"></script>
 	<script src="gl-matrix/dist/gl-matrix.js"></script>
+	<script src="storage.js"></script>
 	<script src="gfw.js"></script>
 	<script src="shader.js"></script>
 	<script src="game.js"></script>

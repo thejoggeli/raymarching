@@ -64,7 +64,10 @@ $(document).ready(function(){
 	Toast.info("Welcome to the Raymarcher", 3);	
 });
 
-function init(){
+function init(){	
+	// read cookie
+	textureScaleExponent = Storage.cookie.get("texture-scale-exponent", 0);
+	setTextureScale(textureScaleExponent);
 	// vertex buffer
 	plane.vertex_vbo = gl.createBuffer();
 	gl.bindBuffer(gl.ARRAY_BUFFER, plane.vertex_vbo);
@@ -121,7 +124,9 @@ function init(){
 	
 	// init camrea
 	Camera3d.init();
-	glMatrix.vec3.set(Camera3d.position, 0, 1.7, 10);
+//	glMatrix.vec3.set(Camera3d.position, 0, 1.7, 10);
+	glMatrix.vec3.set(Camera3d.position, 0, 0, 4.6);
+	
 	
 }
 
@@ -164,7 +169,7 @@ function generateTexture(){
 function setTextureScale(expo){
 	textureScaleExponent = expo;
 	textureScale = Math.pow(2,expo);
-	generateTexture();
+	Storage.cookie.set("texture-scale-exponent", textureScaleExponent);
 }
 
 function onResize(){
@@ -179,10 +184,12 @@ function onUpdate(){
 	}
 	if(Input.keyDown(49)){
 		setTextureScale(textureScaleExponent-1);
+		generateTexture();
 	} else if(Input.keyDown(50)){
 		var scale = textureScaleExponent+1;
 		if(scale > 0) scale = 0;
 		setTextureScale(scale);
+		generateTexture();
 	}
 	// move camera
 	var moveSpeed = 10;
