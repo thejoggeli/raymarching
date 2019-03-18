@@ -55,7 +55,7 @@ float dist(vec3 point){
 	float bd;
 	vec3 p = rot * point;
 	p.xz = rotate(iTime*0.25) * p.xz;
-		
+			
 	if(shape == 0.0){		
 		bd = sdTorus(p, vec2(1.8, 0.2));
 	} else if(shape == 1.0){
@@ -63,7 +63,7 @@ float dist(vec3 point){
 	} else if(shape == 2.0){	
 		bd = max(sd, -sdSphere(vec3(point.x-1.5, point.y, point.z-1.5), 1.5));	
 	} else if(shape == 3.0){	
-		bd = min(sdTorus(rot*vec3(p.x, p.yz), vec2(1.8,0.15)), sdSphere(vec3(p.x, p.yz), 1.0));
+		bd = min(sdTorus(vec3(p.x, p.yz), vec2(1.8,0.15)), sdSphere(vec3(p.x, p.yz), 1.0));
 	} else if(shape == 4.0){	
 		bd = sdHexPrism(rotateAxis(PI/2.0,vec3(1,0,0))*p, vec2(2.0, 0.25))-0.01;
 	} else if(shape == 5.0){			
@@ -73,7 +73,7 @@ float dist(vec3 point){
 	} else if(shape == 7.0){
 		bd = sdOctahedron(p, 2.0)-0.01;
 	} else if(shape == 8.0){
-		bd = min(sdTorus(rot*vec3(p.x+2.25, p.yz), vec2(1.0,0.1)), sdTorus(roti*vec3(p.x-2.25, p.yz), vec2(1.0,0.1)));
+		bd = min(sdTorus(rot*vec3(p.x+1.5, p.yz), vec2(1.0,0.1)), sdTorus(roti*vec3(p.x-1.5, p.yz), vec2(1.0,0.1)));
 	} else {	
 		bd = sdSphere(boxFold(boxFold(boxFold(rotateAxis(0.6,vec3(1,0,1))*p,0.2), 0.2), 0.2), 0.2);
 	} 
