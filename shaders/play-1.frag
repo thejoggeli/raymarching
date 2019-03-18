@@ -1,7 +1,7 @@
 precision highp float;
 
 #define MAX_STEPS 100
-#define MAX_DIST 200.0
+#define MAX_DIST 1000.0
 #define SURF_DIST 0.01
 
 #import "util/hsl2rgb.glsl"
@@ -74,7 +74,7 @@ vec3 normal(vec3 p) {
 	return normalize(n);
 }
 vec3 applyFog(in vec3  rgb, in float distance){
-    float fogAmount = clamp(1.0 - exp((-distance+80.0)*0.025), 0.0, 1.0);
+    float fogAmount = clamp(1.0 - exp((-distance+150.0)*0.025), 0.0, 1.0);
     return mix(rgb, fogColor, fogAmount);
 }
 float light(vec3 p) {

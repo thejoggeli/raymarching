@@ -22,9 +22,9 @@ uniform vec4 iMods;
 vec3 lightPos = vec3(0,0,0);
 vec3 fogColor = vec3(0,0,0);
 
-const float mandelHeight = 0.05;
+const float mandelHeight = 0.1;
 const float mandelIterationsMax = 100.0;
-float mandelIterations = 50.0;
+float mandelIterations = 10.0;
 float inSet;
 float iters;
 
@@ -60,17 +60,18 @@ vec3 mandel(vec2 c){
 	return vec3(1.0, mandelIterations, sqrt(m2/length(dz))*0.5*log(m2));
 }
 float getDist(vec3 point){
-	vec2 mp = vec2(point.x, point.z)*0.01;
+	vec2 mp = vec2(point.x, point.z)*0.1;
 	vec3 mr = mandel(mp);
 	inSet = mr.x;
 	iters = mr.y;
-	float pd = point.y;
-	float fd = mr.z;
-	float mh = mandelHeight * (iters/mandelIterations);
-	float md = pd-mh;
+		
+	float fd = point.y;
+	float cd = mandelHeight - point.y;
+	float md = 	mr.z;
 	
-	float bd = sdSphere(vec3(point.x+50.0, point.y-2.0, point.z), 2.0);
-	return min(bd, md);
+	return min(md, min(fd, cd));
+	
+	
 /*	vec2 mr = mandel(mp);
 
 
@@ -138,10 +139,10 @@ void main() {
 	vec3 rayOrigin = vec3(camPos.x, cam_y, camPos.z);	 */
 	
 	float cspd = 0.1;
-	vec3 rayOrigin = vec3(iCamPos.x*cspd-0.5, iCamPos.y*cspd+0.1, iCamPos.z*cspd+65.0);
+	vec3 rayOrigin = vec3(iCamPos.x*cspd-0.8, iCamPos.y*cspd+0.05, iCamPos.z*cspd+9.0);
 	vec2 coords = vec2(iCoords.x*iRect.z, iCoords.y);
 	vec3 rayDir = iCamRot * normalize(vec3(coords.x, coords.y, -1.0));
-	lightPos = vec3(rayOrigin.x, rayOrigin.y+0.1, rayOrigin.z);
+	lightPos = vec3(rayOrigin.x, rayOrigin.y, rayOrigin.z);
 	
 	float distance = doRaymarch(rayOrigin, rayDir);
 	float iters_ = iters;
