@@ -17,7 +17,6 @@
 	<script src="audios.js"></script>
 	<script src="textures.js"></script>
 	<script src="game.js"></script>
-	<script src="shaders/core/default-bindings.js"></script>
 	<?php if($shaderBindings !== null): ?>
 	<script src="<?= $shaderBindings ?>"></script>
 	<?php endif; ?>

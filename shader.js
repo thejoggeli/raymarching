@@ -55,7 +55,16 @@ ShaderProgram.prototype.addChannel = function(name, resource){
 	}
 }
 ShaderProgram.prototype.setChannel = function(name, resource){
-	this.channels[name].resource = resource;
+	var channel = this.channels[name];
+	if(channel.resource !== null && channel.resource.type == "audio"){
+		channel.resource.stop();
+	}
+	channel.resource = resource;
+	if(resource.type == "audio"){
+		if(resource.htmlAudio.autoplay){
+			resource.play();
+		}
+	}
 }
 ShaderProgram.prototype.use = function(){
 	gl.useProgram(this.program);
@@ -93,6 +102,13 @@ ShaderProgram.prototype.render = function(){
 //	glMatrix.mat3.fromQuat(cameraRotationMatrix, cameraRotationQuat);
 	glMatrix.mat3.fromQuat(cameraRotationMatrix, Camera3d.rotation);
 	gl.uniformMatrix3fv(this.uniforms.iCamRot.location, false, cameraRotationMatrix);
+	// uniform audio
+	var audio = work.vec4[0];
+	audio[0] = Audios.maxFrequency;
+	audio[1] = Audios.sampleRate;
+	audio[2] = Audios.sampleStep;
+	audio[3] = Audios.numSamples;
+	gl.uniform4fv(this.uniforms.iAudio.location, audio);
 	// attribute a_pos
 	gl.bindBuffer(gl.ARRAY_BUFFER, plane.vertex_vbo);
 	gl.vertexAttribPointer(this.attributes.a_pos.location, 3, gl.FLOAT, false, 0, 0); 
@@ -113,17 +129,66 @@ ShaderProgram.prototype.render = function(){
 		gl.uniform1i(channel.location, unit);
 	}
 	
-	// shader bindings
-	ShaderBindings.onRender(shader);
 	// draw
 	gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);		
 }
 
 
-function ShaderBindings(){}
-ShaderBindings.onInit = function(shader){};
-ShaderBindings.onStart = function(shader){};
-ShaderBindings.onUpdate = function(shader){};
-ShaderBindings.onRender = function(shader){};
+function James(){}
+James.enableCameraMovement = true;
+James.cameraMovementSpeed = 20.0;
+James.onInit = function(shader){};
+James.onStart = function(shader){};
+James.onUpdate = function(shader){};
+James.onLateUpdate = function(shader){};
+James.start = function(shader){
+	James.onStart(shader);
+}
+James.init = function(shader){
+	James.onInit(shader);
+}
+James.update = function(shader){
+	James.onUpdate(shader);
+	if(James.enableCameraMovement){
+		// move camera
+		var dir = work.vec3[0];
+		var moveSpeed = James.cameraMovementSpeed;
+		glMatrix.vec3.zero(dir);
+		if(Input.isKeyDown(87)){
+			dir[2] = -1;
+		} else if(Input.isKeyDown(83)){
+			dir[2] = 1;
+		} 
+		if(Input.isKeyDown(65)){
+			dir[0] = -1;
+		} else if(Input.isKeyDown(68)){
+			dir[0] = 1;
+		}
+		if(Input.isKeyDown(84)){
+			Camera3d.position[1] += moveSpeed * Time.deltaTime;
+		} else if(Input.isKeyDown(71)){
+			Camera3d.position[1] -= moveSpeed * Time.deltaTime;
+		}
+		if(glMatrix.vec3.length(dir) != 0){
+			glMatrix.vec3.transformQuat(dir, dir, Camera3d.rotation);
+			dir[1] = 0;
+			glMatrix.vec3.normalize(dir, dir);
+			glMatrix.vec3.scaleAndAdd(Camera3d.position, Camera3d.position, dir, Time.deltaTime*moveSpeed);			
+		}
+		// rotate camera
+		var rotationSpeed = 90;
+		if(Input.isKeyDown(81)){
+			Camera3d.rotateEulers(0, rotationSpeed * Time.deltaTime, 0);
+		} else if(Input.isKeyDown(69)){
+			Camera3d.rotateEulers(0, -rotationSpeed * Time.deltaTime, 0);
+		}
+		if(Input.isKeyDown(82)){
+			Camera3d.rotateEulers(rotationSpeed * Time.deltaTime, 0, 0);
+		} else if(Input.isKeyDown(70)){
+			Camera3d.rotateEulers(-rotationSpeed * Time.deltaTime, 0, 0);
+		}		
+	}
+	James.onLateUpdate(shader);
+};
 
 

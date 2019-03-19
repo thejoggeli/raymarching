@@ -89,6 +89,8 @@ function init(){
 	shader.addUniform("iTime");
 	shader.addUniform("iCamPos");
 	shader.addUniform("iCamRot");
+	shader.addUniform("iCamRot");
+	shader.addUniform("iAudio");
 	shader.addUniform("iMods");
 	shader.use();
 	
@@ -117,7 +119,7 @@ function init(){
 	Camera3d.init();
 	glMatrix.vec3.set(Camera3d.position, 0, 0, 0);
 	
-	ShaderBindings.onInit(shader);
+	James.init(shader);
 	
 	
 }
@@ -132,7 +134,7 @@ function onAudiosLoaded(){
 
 function start(){	
 	// start
-	ShaderBindings.onStart(shader);
+	James.start(shader);
 	Gfw.setBackgroundColor("#008");
 	Gfw.start();
 	
@@ -204,7 +206,7 @@ function onUpdate(){
 		generateTexture();
 	}
 	// call bindings
-	ShaderBindings.onUpdate(shader);
+	James.update(shader);
 	// update camera transform
 	Camera3d.updateTransform();
 	// monitor stuffs
