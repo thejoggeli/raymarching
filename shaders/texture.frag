@@ -125,6 +125,8 @@ void main() {
 		
 	fogColor = hsl2rgb(vec3(clamp(0.3-((totIntensity-0.1)*3.0)*0.3, 0.0, 1.0), 1.0, min(totIntensity, 0.75)));
 	
+	light *= min(totIntensity*10.0, 1.0);
+	
 	rgba.xyz = rgba.xyz * light;
 	rgba.xyz = applyFog(rgba.xyz, distance);
 		
