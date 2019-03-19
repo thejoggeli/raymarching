@@ -1,7 +1,7 @@
 <?php
 	require_once("shaders.php");
 	$shaderName = isset($_GET["shader"]) ? $_GET["shader"] : "spheres";
-	$shaderSrc = get_shader_src($shaderName.".frag");
+	$shaderSrc = get_shader_src($shaderName.".frag", true);
 	$shaderBindings = get_shader_bindings($shaderName.".js");
 ?>
 <!DOCTYPE html>
@@ -14,6 +14,8 @@
 	<script src="storage.js"></script>
 	<script src="gfw.js"></script>
 	<script src="shader.js"></script>
+	<script src="audios.js"></script>
+	<script src="textures.js"></script>
 	<script src="game.js"></script>
 	<script src="shaders/core/default-bindings.js"></script>
 	<?php if($shaderBindings !== null): ?>

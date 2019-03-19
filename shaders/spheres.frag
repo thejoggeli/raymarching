@@ -2,13 +2,6 @@
 #define MAX_DIST 100.0
 #define SURF_DIST 0.01
 #define BOX_SIZE 0.2
-precision highp float;
-varying vec2 iCoords;
-uniform vec3 iCamPos;
-uniform mat3 iCamRot;
-uniform vec3 iWindow;
-uniform vec3 iRect;
-uniform float iTime;
 uniform vec4 iMods;
 float raymarch(vec3 ray_origin, vec3 ray_dir);
 vec3 light_pos = vec3(0,0,0);
@@ -118,7 +111,7 @@ float raymarch(vec3 ray_origin, vec3 ray_dir){
 	return d_marched;
 }
 void main() {
-	vec2 coords = vec2(iCoords.x*iRect.z, iCoords.y);		
+	vec2 coords = vec2(iCoords.x*iResolution.z, iCoords.y);		
 	vec3 ray_origin = iCamPos;
 	vec3 ray_dir = iCamRot * normalize(vec3(coords.x, coords.y, -1.0));		
 	light_pos = iCamPos;

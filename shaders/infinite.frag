@@ -1,18 +1,9 @@
-precision highp float;
-
 #define MAX_STEPS 100
 #define MAX_DIST 1000.0
 #define SURF_DIST 0.01
 
 #import "util/hsl2rgb.glsl"
 
-// uniforms
-varying vec2 iCoords;
-uniform vec3 iCamPos;
-uniform mat3 iCamRot;
-uniform vec3 iWindow;
-uniform vec3 iRect;
-uniform float iTime;
 uniform vec4 iMods;
 
 vec3 lightPos = vec3(0,0,0);
@@ -87,7 +78,7 @@ float light(vec3 p) {
 	return dif;
 }
 void main() {
-	vec2 coords = vec2(iCoords.x*iRect.z, iCoords.y);		
+	vec2 coords = vec2(iCoords.x*iResolution.z, iCoords.y);		
 	vec3 rayOrigin = iCamPos;
 	vec3 rayDir = iCamRot * normalize(vec3(coords.x, coords.y, -1.0));		
 //	lightPos = vec3(0,4,0);

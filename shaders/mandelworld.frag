@@ -1,5 +1,3 @@
-precision highp float;
-
 #define MAX_STEPS 100
 #define MAX_DIST 200.0
 #define SURF_DIST 0.01
@@ -16,13 +14,6 @@ precision highp float;
 #import "util/rotate.glsl"
 #import "util/rotateAxis.glsl"
 
-// uniforms
-varying vec2 iCoords;
-uniform vec3 iCamPos;
-uniform mat3 iCamRot;
-uniform vec3 iWindow;
-uniform vec3 iRect;
-uniform float iTime;
 uniform vec4 iMods;
 
 vec3 lightPos = vec3(0,0,0);
@@ -146,7 +137,7 @@ void main() {
 	moonPos.z += 3.0;
 	moonPos.xz = rotate(iTime*0.5) * moonPos.xz;
 	moonPos.yz = rotate(0.1) * moonPos.yz;
-	vec2 coords = vec2(iCoords.x*iRect.z, iCoords.y);
+	vec2 coords = vec2(iCoords.x*iResolution.z, iCoords.y);
 	vec3 rayOrigin = iCamPos;
 	vec3 rayDir = iCamRot * normalize(vec3(coords.x, coords.y, -1.0));
 	iters = 25.0 + sin(iTime*2.0) * 12.0;

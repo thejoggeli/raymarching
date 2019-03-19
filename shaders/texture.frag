@@ -1,4 +1,3 @@
-precision highp float;
 
 #define MAX_STEPS 100
 #define MAX_DIST 200.0
@@ -11,14 +10,10 @@ precision highp float;
 #import "util/rotate.glsl"
 
 // uniforms
-varying vec2 iCoords;
-uniform vec3 iCamPos;
-uniform mat3 iCamRot;
-uniform vec3 iWindow;
-uniform vec3 iRect;
-uniform float iTime;
 uniform vec4 iMods;
-uniform sampler2D iTexture0;
+uniform sampler2D iTexture;
+uniform sampler2D iMusic;
+uniform sampler2D iFreq;
 
 vec3 lightPos = vec3(0,0,0);
 vec3 fogColor = vec3(0,0,0);
@@ -62,7 +57,7 @@ float getLight(vec3 p) {
 }
 void main() {	
 	vec3 rayOrigin = iCamPos;
-	vec2 coords = vec2(iCoords.x*iRect.z, iCoords.y);
+	vec2 coords = vec2(iCoords.x*iResolution.z, iCoords.y);
 	vec3 rayDir = iCamRot * normalize(vec3(coords.x, coords.y, -1.0));
 	lightPos = vec3(rayOrigin.x, rayOrigin.y, rayOrigin.z);
 	float distance = doRaymarch(rayOrigin, rayDir);
@@ -71,8 +66,19 @@ void main() {
 	vec2 texCoords;
 	texCoords.x = mod(abs(point.x)*0.1,1.0);
 	texCoords.y = mod(abs(point.z)*0.1,1.0);
-	vec4 rgba = texture2D(iTexture0, texCoords);
+	vec4 rgba = texture2D(iTexture, texCoords);
 	rgba.xyz = rgba.xyz * light;
 	rgba.xyz = applyFog(rgba.xyz, distance);
 	gl_FragColor = rgba;
+	
+	vec2 screenCoords = vec2(iCoords.x+0.5, -iCoords.y+0.5);
+	
+	if(screenCoords.y > 0.8 && screenCoords.y < 0.9){
+		gl_FragColor = texture2D(iMusic, vec2(screenCoords.x, 0.5));
+	}
+	
+	if(screenCoords.y > 0.6 && screenCoords.y < 0.7){
+		gl_FragColor = texture2D(iFreq, vec2(screenCoords.x, 0.5));
+	}
+	
 }

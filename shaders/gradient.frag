@@ -1,12 +1,5 @@
-precision highp float;
-varying vec2 iCoords;
-uniform vec3 iRect;
-uniform vec3 iCamPos;
-uniform mat3 iCamRot;
-uniform float iTime;
-
 void main() {
-	vec2 uv = vec2(iCoords.x*iRect.z, iCoords.y);	
+	vec2 uv = vec2((iCoords.x+0.5)*iResolution.z, iCoords.y+0.5);	
 	vec4 color;
 	color.x = sin(iTime)*0.5+0.5;
 	color.y = sin(length(iCamPos))*0.5+0.5;

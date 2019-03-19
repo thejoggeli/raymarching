@@ -1,8 +1,12 @@
 <?php
 	
-	function get_shader_src($file){
-		
+	function get_shader_src($file, $globals = false){
+								
 		$src = file_get_contents("shaders/" . $file);
+		
+		if($globals){
+			$src = file_get_contents("shaders/core/globals.frag") . $src;
+		}
 		
 		$regex = "/\#import \"[\w\/\.]+\"/";
 		

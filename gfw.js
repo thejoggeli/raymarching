@@ -401,7 +401,7 @@ function Canvas(name, params){
 			ctx = this.ctx;
 		}
 	} else if(this.renderMode == RenderMode.Canvas3d){		
-		this.gl = this.element.getContext("webgl");
+		this.gl = this.element.getContext("webgl2");
 		if(this.gl == null){
 			this.element.getContext("experimental-webgl");
 		}

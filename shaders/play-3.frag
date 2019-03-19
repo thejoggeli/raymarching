@@ -1,5 +1,3 @@
-precision highp float;
-
 #define MAX_STEPS 100
 #define MAX_DIST 200.0
 #define SURF_DIST 0.01
@@ -10,13 +8,6 @@ precision highp float;
 #import "util/sdSphere.glsl"
 #import "util/rotate.glsl"
 
-// uniforms
-varying vec2 iCoords;
-uniform vec3 iCamPos;
-uniform mat3 iCamRot;
-uniform vec3 iWindow;
-uniform vec3 iRect;
-uniform float iTime;
 uniform vec4 iMods;
 
 vec3 lightPos = vec3(0,0,0);
@@ -139,7 +130,7 @@ void main() {
 	
 	float cspd = 0.1;
 	vec3 rayOrigin = vec3(iCamPos.x*cspd-0.5, iCamPos.y*cspd+0.1, iCamPos.z*cspd+65.0);
-	vec2 coords = vec2(iCoords.x*iRect.z, iCoords.y);
+	vec2 coords = vec2(iCoords.x*iResolution.z, iCoords.y);
 	vec3 rayDir = iCamRot * normalize(vec3(coords.x, coords.y, -1.0));
 	lightPos = vec3(rayOrigin.x, rayOrigin.y+0.1, rayOrigin.z);
 	
