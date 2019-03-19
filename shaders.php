@@ -18,5 +18,14 @@
 		
 		return $src;
 	}
+	
+	function get_shader_bindings($file){		
+		$path = "shaders/" . $file;
+		if(file_exists($path)){
+			return $path;
+		}
+		return null;
+	}
+
 
 ?>

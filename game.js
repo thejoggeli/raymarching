@@ -34,17 +34,16 @@ var work = {
 var shader;
 var textureShader;
 
-var textureWidth, textureHeight;
-var textureScaleExponent = 0;
-var textureScale = 1;
-var texture = null;
+var bufferTextureWidth, bufferTextureHeight;
+var bufferbufferTextureScaleExponent = 0;
+var bufferTextureScale = 1;
+var bufferTexture = null;
 var framebuffer = null;
 
 var mods = glMatrix.vec4.create();
 
 $(document).ready(function(){
-	Monitor.setup({showTitle: false});
-	// setup Gfw 
+	Monitor.setup({showTitle: false});	// setup Gfw 
 	Gfw.setup({scaling:false});
 	Gfw.createCanvas("main", {"renderMode": RenderMode.Canvas3d});
 	Gfw.getCanvas("main").setActive();
@@ -53,21 +52,26 @@ $(document).ready(function(){
 	Gfw.onResize = onResize;
 	// init
 	init();
-	// start
-	Gfw.setBackgroundColor("#008");
-	Gfw.start();
-	
-	Gfw.inputOverlay.off("touchstart");
-	Gfw.inputOverlay.off("touchmove");
-	Gfw.inputOverlay.off("touchend");
-	
-	Toast.info("Welcome to the Raymarcher", 3);	
+	Resources.loadTextures(function(){
+		for(var t in shader.textureChannels){
+			var textureChannel = shader.textureChannels[t];
+			textureChannel.texture = Resources.getTexture(textureChannel.resourceName);
+		}
+		// start
+		Gfw.setBackgroundColor("#008");
+		Gfw.start();
+		
+		Gfw.inputOverlay.off("touchstart");
+		Gfw.inputOverlay.off("touchmove");
+		Gfw.inputOverlay.off("touchend");	
+		Toast.info("Welcome to the Raymarcher", 3);			
+	});
 });
 
 function init(){	
 	// read cookie
-	textureScaleExponent = Storage.cookie.get("texture-scale-exponent", 0);
-	setTextureScale(textureScaleExponent);
+	bufferTextureScaleExponent = Storage.cookie.get("texture-scale-exponent", 0);
+	setTextureScale(bufferTextureScaleExponent);
 	// vertex buffer
 	plane.vertex_vbo = gl.createBuffer();
 	gl.bindBuffer(gl.ARRAY_BUFFER, plane.vertex_vbo);
@@ -125,27 +129,29 @@ function init(){
 	// init camrea
 	Camera3d.init();
 //	glMatrix.vec3.set(Camera3d.position, 0, 1.7, 10);
-	glMatrix.vec3.set(Camera3d.position, 0, 0, 4.6);
+	glMatrix.vec3.set(Camera3d.position, 0, 0, 0);
+	
+	ShaderBindings.onInit(shader);
 	
 	
 }
 
 function generateTexture(){	
-	if(texture !== null){
-		gl.deleteTexture(texture);
+	if(bufferTexture !== null){
+		gl.deleteTexture(bufferTexture);
 	}
-	texture = gl.createTexture();
-	textureWidth = window.innerWidth * textureScale;
-	textureHeight = window.innerHeight * textureScale;
+	bufferTexture = gl.createTexture();
+	bufferTextureWidth = window.innerWidth * bufferTextureScale;
+	bufferTextureHeight = window.innerHeight * bufferTextureScale;
 	const level = 0;
 	const internalFormat = gl.RGB;
 	const border = 0;
 	const format = gl.RGB;
 	const type = gl.UNSIGNED_BYTE;
 	const data = null;	
-	gl.bindTexture(gl.TEXTURE_2D, texture);
+	gl.bindTexture(gl.TEXTURE_2D, bufferTexture);
 	gl.texImage2D(gl.TEXTURE_2D, level, internalFormat,
-		textureWidth, textureHeight, border,	
+		bufferTextureWidth, bufferTextureHeight, border,	
 		format, type, data
 	);
 //	gl.texParameterf(gl.TEXTURE_2D, gl.TEXTURE_MAX_ANISOTROPY_EXT, 0);
@@ -163,13 +169,13 @@ function generateTexture(){
 	gl.bindFramebuffer(gl.FRAMEBUFFER, framebuffer);
 	// attach the texture as the first color attachment
 	const attachmentPoint = gl.COLOR_ATTACHMENT0;
-	gl.framebufferTexture2D(gl.FRAMEBUFFER, attachmentPoint, gl.TEXTURE_2D, texture, level);
+	gl.framebufferTexture2D(gl.FRAMEBUFFER, attachmentPoint, gl.TEXTURE_2D, bufferTexture, level);
 }
 
 function setTextureScale(expo){
-	textureScaleExponent = expo;
-	textureScale = Math.pow(2,expo);
-	Storage.cookie.set("texture-scale-exponent", textureScaleExponent);
+	bufferTextureScaleExponent = expo;
+	bufferTextureScale = Math.pow(2,expo);
+	Storage.cookie.set("texture-scale-exponent", bufferTextureScaleExponent);
 }
 
 function onResize(){
@@ -183,57 +189,22 @@ function onUpdate(){
 		mods[0] = mods[0] + Time.deltaTime;		
 	}
 	if(Input.keyDown(49)){
-		setTextureScale(textureScaleExponent-1);
+		setTextureScale(bufferTextureScaleExponent-1);
 		generateTexture();
 	} else if(Input.keyDown(50)){
-		var scale = textureScaleExponent+1;
+		var scale = bufferTextureScaleExponent+1;
 		if(scale > 0) scale = 0;
 		setTextureScale(scale);
 		generateTexture();
 	}
-	// move camera
-	var moveSpeed = 10;
-	var dir = work.vec3[0];
-	glMatrix.vec3.zero(dir);
-	if(Input.isKeyDown(87)){
-		dir[2] = -1;
-	} else if(Input.isKeyDown(83)){
-		dir[2] = 1;
-	} 
-	if(Input.isKeyDown(65)){
-		dir[0] = -1;
-	} else if(Input.isKeyDown(68)){
-		dir[0] = 1;
-	}
-	if(Input.isKeyDown(84)){
-		Camera3d.position[1] += moveSpeed * Time.deltaTime;
-	} else if(Input.isKeyDown(71)){
-		Camera3d.position[1] -= moveSpeed * Time.deltaTime;
-	}
-	if(glMatrix.vec3.length(dir) != 0){
-		glMatrix.vec3.transformQuat(dir, dir, Camera3d.rotation);
-		dir[1] = 0;
-		glMatrix.vec3.normalize(dir, dir);
-		glMatrix.vec3.scaleAndAdd(Camera3d.position, Camera3d.position, dir, Time.deltaTime*moveSpeed);			
-	}
-	// rotate camera
-	var rotationSpeed = 90;
-	if(Input.isKeyDown(81)){
-		Camera3d.rotateEulers(0, rotationSpeed * Time.deltaTime, 0);
-	} else if(Input.isKeyDown(69)){
-		Camera3d.rotateEulers(0, -rotationSpeed * Time.deltaTime, 0);
-	}
-	if(Input.isKeyDown(82)){
-		Camera3d.rotateEulers(rotationSpeed * Time.deltaTime, 0, 0);
-	} else if(Input.isKeyDown(70)){
-		Camera3d.rotateEulers(-rotationSpeed * Time.deltaTime, 0, 0);
-	}
+	// call bindings
+	ShaderBindings.onUpdate(shader);
 	// update camera transform
 	Camera3d.updateTransform();
 	// monitor stuffs
 	Monitor.set("FPS", Time.fps);
-	Monitor.set("tex size", textureWidth + "x" + textureHeight);
-	Monitor.set("tex scale", roundToFixed(textureScale, 3) + " (2^" + textureScaleExponent + ")");
+	Monitor.set("tex size", bufferTextureWidth + "x" + bufferTextureHeight);
+	Monitor.set("tex scale", roundToFixed(bufferTextureScale, 3) + " (2^" + bufferTextureScaleExponent + ")");
 	Monitor.set("pos-x", roundToFixed(Camera3d.position[0], 3));
 	Monitor.set("pos-y", roundToFixed(Camera3d.position[1], 3));
 	Monitor.set("pos-z", roundToFixed(Camera3d.position[2], 3));
@@ -246,15 +217,15 @@ function onRender(){
 	// render to texture
 	shader.use();
 	gl.bindFramebuffer(gl.FRAMEBUFFER, framebuffer);
-	gl.viewport(0, 0, textureWidth, textureHeight);
+	gl.viewport(0, 0, bufferTextureWidth, bufferTextureHeight);
 	gl.clear(gl.COLOR_BUFFER_BIT);	
 	// uniform time
 	gl.uniform1f(shader.uniforms.iTime.location, Time.sinceStart);
 	// uniform texutre
 	var textureSize = work.vec3[0];
-	textureSize[0] = textureWidth;
-	textureSize[1] = textureHeight;
-	textureSize[2] = textureWidth / textureHeight;	
+	textureSize[0] = bufferTextureWidth;
+	textureSize[1] = bufferTextureHeight;
+	textureSize[2] = bufferTextureWidth / bufferTextureHeight;	
 	gl.uniform3fv(shader.uniforms.iRect.location, textureSize);
 	// uniform window
 	var windowSize = work.vec3[0];
@@ -286,6 +257,17 @@ function onRender(){
 	gl.bindBuffer(gl.ARRAY_BUFFER, plane.uv_vbo);
 	gl.vertexAttribPointer(shader.attributes.a_uv.location, 2, gl.FLOAT, false, 0, 0); 
 	gl.enableVertexAttribArray(shader.attributes.a_uv.location);
+	// textures
+	for(var t in shader.textureChannels){
+		var textureChannel = shader.textureChannels[t];		
+		var texture = textureChannel.texture;
+		var texUnit = textureChannel.index+1;
+		gl.activeTexture(gl["TEXTURE"+texUnit]);
+		gl.bindTexture(gl.TEXTURE_2D, texture.location);
+		gl.uniform1i(textureChannel.location, texUnit);
+	}
+	// shader bindings
+	ShaderBindings.onRender(shader);
 	// draw
 	gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);	
 	
@@ -303,7 +285,7 @@ function onRender(){
 	gl.enableVertexAttribArray(textureShader.attributes.a_uv.location);
 	// active texture
 	gl.activeTexture(gl.TEXTURE0);
-	gl.bindTexture(gl.TEXTURE_2D, texture);
+	gl.bindTexture(gl.TEXTURE_2D, bufferTexture);
 	gl.uniform1i(textureShader.uniforms.sampler.location, 0);
 	// draw
 	gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
@@ -351,9 +333,67 @@ Camera3d.setEulersFlag = function(){
 	Camera3d.eulersFlag = true;
 }
 
-
-
-
+function Resources(){}
+Resources.textures = {};
+Resources.imagesCount = 0;
+Resources.imagesLoadedCount = 0;
+Resources.addTexture = function(name, path){
+	Resources.imagesCount++;
+	var image = new Image();
+	image.src = "resources/" + path;
+	image.name_ = name;
+	Resources.textures[name] = {
+		name: name,
+		path: path,
+		image: image,
+	}
+}
+Resources.loadTextures = function(callback){
+	if(Resources.imagesCount == 0) return callback();
+	for(var i in Resources.textures){
+		var image = Resources.textures[i].image;
+		image.onload = function(){
+			Resources.imagesLoadedCount++;
+			Resources.createTexture(image.name_, image);
+			if(Resources.imagesLoadedCount >= Resources.imagesCount){
+				callback();
+			}
+		}
+	}
+}
+Resources.getTexture = function(name){
+	return Resources.textures[name];
+}
+Resources.createTexture = function(name, image){
+	var texture = Resources.textures[name];
+	var image = texture.image;
+	var textureId = gl.createTexture();
+	const textureWidth = image.width;
+	const textureHeight = image.height;
+	const level = 0;
+	const internalFormat = gl.RGBA	;
+	const border = 0;
+	const format = gl.RGBA;
+	const type = gl.UNSIGNED_BYTE;
+	gl.bindTexture(gl.TEXTURE_2D, textureId);
+	gl.texImage2D(
+		gl.TEXTURE_2D, level, internalFormat,
+		format, type,
+		image
+	);
+	
+//	gl.texParameterf(gl.TEXTURE_2D, gl.TEXTURE_MAX_ANISOTROPY_EXT, 0);
+	gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST);
+	gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
+	// Prevents s-coordinate wrapping (repeating).
+	gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+	// Prevents t-coordinate wrapping (repeating).
+	gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+	
+	texture.width = textureWidth;
+	texture.height = textureHeight;
+	texture.location = textureId;
+}
 
 
 

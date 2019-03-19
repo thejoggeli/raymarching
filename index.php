@@ -1,6 +1,8 @@
 <?php
 	require_once("shaders.php");
-	$shader = isset($_GET["shader"]) ? ("$_GET[shader].frag") : "spheres.frag";
+	$shaderName = isset($_GET["shader"]) ? $_GET["shader"] : "spheres";
+	$shaderSrc = get_shader_src($shaderName.".frag");
+	$shaderBindings = get_shader_bindings($shaderName.".js");
 ?>
 <!DOCTYPE html>
 <html><head>
@@ -13,10 +15,14 @@
 	<script src="gfw.js"></script>
 	<script src="shader.js"></script>
 	<script src="game.js"></script>
+	<script src="shaders/core/default-bindings.js"></script>
+	<?php if($shaderBindings !== null): ?>
+	<script src="<?= $shaderBindings ?>"></script>
+	<?php endif; ?>
 	<link rel="stylesheet" type="text/css" href="gfw.css">
 	<link rel="stylesheet" type="text/css" href="game.css">
 	<script type="x-shader/x-vertex" id="vertex-shader-raymarching"><?= get_shader_src("core/raymarching.vert") ?></script>
-	<script type="x-shader/x-fragment" id="fragment-shader-raymarching"><?= get_shader_src($shader) ?></script>
+	<script type="x-shader/x-fragment" id="fragment-shader-raymarching"><?= $shaderSrc ?></script>
 	<script type="x-shader/x-vertex" id="vertex-shader-texture"><?= get_shader_src("core/texture.vert") ?></script>
 	<script type="x-shader/x-fragment" id="fragment-shader-texture"><?= get_shader_src("core/texture.frag") ?></script>
 </head><body>

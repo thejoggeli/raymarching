@@ -1,8 +1,10 @@
 function ShaderProgram(){
 	this.attributes = {};
 	this.uniforms = {};
+	this.textureChannels = {};
 	this.program;
 }
+ShaderProgram.texturesCount = 0;
 ShaderProgram.prototype.create = function(vsrc, fsrc){
 	// shaders
 	var vertexShader = gl.createShader(gl.VERTEX_SHADER);
@@ -41,8 +43,25 @@ ShaderProgram.prototype.addUniform = function(name){
 	};	
 	console.log("uniform", this.uniforms[name]);
 }
+ShaderProgram.prototype.addTexture = function(name, texturePath){
+	var resourceName = name;
+	Resources.addTexture(resourceName, texturePath);
+	this.textureChannels[name] = {
+		resourceName: resourceName,
+		name: name,
+		index: ShaderProgram.texturesCount++,
+		location: gl.getUniformLocation(this.program, name),
+		texturePath: texturePath,
+		texture: null,
+	};
+}
 ShaderProgram.prototype.use = function(){
 	gl.useProgram(this.program);
 }
 ShaderProgram.prototype.applyAttributes = function(){}
 ShaderProgram.prototype.applyUniforms = function(){}
+
+function ShaderBindings(){}
+ShaderBindings.onInit = function(shader){};
+ShaderBindings.onUpdate = function(shader){};
+ShaderBindings.onRender = function(shader){};
