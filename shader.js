@@ -17,16 +17,26 @@ ShaderProgram.prototype.create = function(vsrc, fsrc){
 	gl.attachShader(this.program, vertexShader);
 	gl.attachShader(this.program, fragmentShader);
 	gl.linkProgram(this.program);
-	gl.useProgram(this.program);
 	
 	if(!gl.getProgramParameter(this.program, gl.LINK_STATUS)) {
 		var linkErrLog = gl.getProgramInfoLog(this.program);
-		console.log("Shader this.program did not link successfully. " + "Error log: " + linkErrLog);
-		var compilationLog = gl.getShaderInfoLog(vertexShader);
-		if(compilationLog != "") console.log(compilationLog);
-		compilationLog = gl.getShaderInfoLog(fragmentShader);
-		if(compilationLog != "") console.log(compilationLog);
+		console.error("Shader this.program did not link successfully. " + "Error log: " + linkErrLog);		
+		var print_error = function(shader, src){			
+			var compilationLog = gl.getShaderInfoLog(shader);
+			if(compilationLog != ""){
+				console.error(compilationLog);
+				var split = src.split("\n");
+				for(var i = 0; i < split.length; i++){
+					var line = ""+(i+1);
+					console.warn(line.padStart(5)+": " + split[i]);
+				}
+			}
+		}		
+		print_error(vertexShader, vsrc);
+		print_error(fragmentShader, fsrc);		
 		return;
+	} else {
+		gl.useProgram(this.program);
 	}
 }
 ShaderProgram.prototype.addAttribute = function(name){
@@ -87,7 +97,10 @@ ShaderProgram.prototype.render = function(){
 	windowSize[2] = window.innerWidth / window.innerHeight;
 	gl.uniform3fv(this.uniforms.iWindow.location, windowSize);
 	// uniform mods
-	gl.uniform4fv(this.uniforms.iMods.location, mods);
+	gl.uniform4fv(this.uniforms.iMods0.location, iMods0);
+	gl.uniform4fv(this.uniforms.iMods1.location, iMods1);
+	gl.uniform4fv(this.uniforms.iMods2.location, iMods2);
+	gl.uniform4fv(this.uniforms.iMods3.location, iMods3);
 	// uniform camera_position
 	var cameraPosition = work.vec3[0];
 //	glMatrix.vec3.set(cameraPosition, 0, 1, 0);
@@ -129,30 +142,33 @@ ShaderProgram.prototype.render = function(){
 		gl.uniform1i(channel.location, unit);
 	}
 	
+	ShaderScript.onUniforms(shader);
+	
 	// draw
 	gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);		
 }
 
 
-function James(){}
-James.enableCameraMovement = true;
-James.cameraMovementSpeed = 20.0;
-James.onInit = function(shader){};
-James.onStart = function(shader){};
-James.onUpdate = function(shader){};
-James.onLateUpdate = function(shader){};
-James.start = function(shader){
-	James.onStart(shader);
+function ShaderScript(){}
+ShaderScript.enableCameraMovement = true;
+ShaderScript.cameraMovementSpeed = 20.0;
+ShaderScript.onInit = function(shader){};
+ShaderScript.onStart = function(shader){};
+ShaderScript.onUpdate = function(shader){};
+ShaderScript.onLateUpdate = function(shader){};
+ShaderScript.onUniforms = function(shader){};
+ShaderScript.start = function(shader){
+	ShaderScript.onStart(shader);
 }
-James.init = function(shader){
-	James.onInit(shader);
+ShaderScript.init = function(shader){
+	ShaderScript.onInit(shader);
 }
-James.update = function(shader){
-	James.onUpdate(shader);
-	if(James.enableCameraMovement){
+ShaderScript.update = function(shader){
+	ShaderScript.onUpdate(shader);
+	if(ShaderScript.enableCameraMovement){
 		// move camera
 		var dir = work.vec3[0];
-		var moveSpeed = James.cameraMovementSpeed;
+		var moveSpeed = ShaderScript.cameraMovementSpeed;
 		glMatrix.vec3.zero(dir);
 		if(Input.isKeyDown(87)){
 			dir[2] = -1;
@@ -188,7 +204,7 @@ James.update = function(shader){
 			Camera3d.rotateEulers(-rotationSpeed * Time.deltaTime, 0, 0);
 		}		
 	}
-	James.onLateUpdate(shader);
+	ShaderScript.onLateUpdate(shader);
 };
 
 

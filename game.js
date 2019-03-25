@@ -40,7 +40,10 @@ var bufferTextureScale = 1;
 var bufferTexture = null;
 var framebuffer = null;
 
-var mods = glMatrix.vec4.create();
+var iMods0 = glMatrix.vec4.create();
+var iMods1 = glMatrix.vec4.create();
+var iMods2 = glMatrix.vec4.create();
+var iMods3 = glMatrix.vec4.create();
 
 $(document).ready(function(){
 	Monitor.setup({showTitle: false});	// setup Gfw 
@@ -91,7 +94,10 @@ function init(){
 	shader.addUniform("iCamRot");
 	shader.addUniform("iCamRot");
 	shader.addUniform("iAudio");
-	shader.addUniform("iMods");
+	shader.addUniform("iMods0");
+	shader.addUniform("iMods1");
+	shader.addUniform("iMods2");
+	shader.addUniform("iMods3");
 	shader.use();
 	
 	// texture shader
@@ -113,13 +119,16 @@ function init(){
 		work.vec2[i] = glMatrix.vec2.create();
 		work.quat[i] = glMatrix.quat.create();
 	}
-	glMatrix.vec4.set(mods, 1, 1, 1, 1);
+	glMatrix.vec4.set(iMods0, 0, 0, 0, 0);
+	glMatrix.vec4.set(iMods1, 0, 0, 0, 0);
+	glMatrix.vec4.set(iMods2, 0, 0, 0, 0);
+	glMatrix.vec4.set(iMods3, 0, 0, 0, 0);
 	
 	// init camrea
 	Camera3d.init();
 	glMatrix.vec3.set(Camera3d.position, 0, 0, 0);
 	
-	James.init(shader);
+	ShaderScript.init(shader);
 	
 	
 }
@@ -134,7 +143,7 @@ function onAudiosLoaded(){
 
 function start(){	
 	// start
-	James.start(shader);
+	ShaderScript.start(shader);
 	Gfw.setBackgroundColor("#008");
 	Gfw.start();
 	
@@ -191,11 +200,6 @@ function onResize(){
 }
 
 function onUpdate(){
-	if(Input.isKeyDown(37)){
-		mods[0] = mods[0] - Time.deltaTime;
-	} else if(Input.isKeyDown(39)){
-		mods[0] = mods[0] + Time.deltaTime;		
-	}
 	if(Input.keyDown(49)){
 		setTextureScale(bufferTextureScaleExponent-1);
 		generateTexture();
@@ -206,7 +210,7 @@ function onUpdate(){
 		generateTexture();
 	}
 	// call bindings
-	James.update(shader);
+	ShaderScript.update(shader);
 	// update camera transform
 	Camera3d.updateTransform();
 	// monitor stuffs

@@ -67,7 +67,7 @@ ShaderAudio.prototype.init = function(){
 	Audios.maxFrequency = this.context.sampleRate / 2.0;
 	Audios.sampleRate = this.context.sampleRate;
 	Audios.sampleStep = this.context.sampleRate / this.numSamples;
-	Audios.numSamples = this.analyser.fftSize;
+	Audios.numSamples = this.numSamples;
 }
 ShaderAudio.prototype.play = function(){
 	this.htmlAudio.play();

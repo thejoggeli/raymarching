@@ -1,4 +1,4 @@
-body {margin:0;overflow:hidden;}
+body {margin:0;overflow:hidden;background:magenta;}
 #gfw-input-overlay {position:absolute;z-index:10000;top:0;left:0;}
 #gfw-input-overlay:focus {outline:0;}
 canvas:focus {outline:0;}

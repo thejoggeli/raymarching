@@ -19,30 +19,18 @@ ShaderScript.onInit = function(shader){
 
 	// texture
 	var texture = Textures.add("texture", "noise-1.jpg");
-	shader.addChannel("texture", texture);	
+	shader.addChannel("texture", texture);
 	
 	// music
 	var music = Audios.add(songs[0], songs[0]);
 	shader.addChannel("music", music);
 	shader.setChannel("music", music);
 	
-	// music
-	var freq = Audios.add("freq", "music/frequency-test.mp3");
-	shader.addChannel("freq", freq);
-	freq.stop();
-	
-}
-
-ShaderScript.onStart = function(shader){
-	Audios.get("freq").volume = 0.0;
 }
 ShaderScript.onUpdate = function(shader){
 	if(Input.keyDown(48)){
 		if(++songId >= songs.length) songId = 0;
 		var music = Audios.add(songs[songId], songs[songId]);
 		shader.setChannel("music", music);
-	}
-	if(Input.keyDown(48+9)){
-		Audios.add("freq").play();
 	}
 }

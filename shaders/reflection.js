@@ -19,22 +19,14 @@ ShaderScript.onInit = function(shader){
 
 	// texture
 	var texture = Textures.add("texture", "noise-1.jpg");
-	shader.addChannel("texture", texture);	
+	shader.addChannel("texture", texture);
 	
 	// music
-	var music = Audios.add(songs[0], songs[0]);
+	songId = randomInt(0, songs.length);
+	var music = Audios.add(songs[songId], songs[songId]);
 	shader.addChannel("music", music);
 	shader.setChannel("music", music);
 	
-	// music
-	var freq = Audios.add("freq", "music/frequency-test.mp3");
-	shader.addChannel("freq", freq);
-	freq.stop();
-	
-}
-
-ShaderScript.onStart = function(shader){
-	Audios.get("freq").volume = 0.0;
 }
 ShaderScript.onUpdate = function(shader){
 	if(Input.keyDown(48)){
@@ -42,7 +34,20 @@ ShaderScript.onUpdate = function(shader){
 		var music = Audios.add(songs[songId], songs[songId]);
 		shader.setChannel("music", music);
 	}
-	if(Input.keyDown(48+9)){
-		Audios.add("freq").play();
+	if(Input.isKeyDown(37)){
+		iMods0[0] -= Time.deltaTime;
+	} else if(Input.isKeyDown(39)){
+		iMods0[0] += Time.deltaTime;
+	}
+	if(Input.isKeyDown(38)){
+		iMods0[1] -= Time.deltaTime;
+	} else if(Input.isKeyDown(40)){
+		iMods0[1] += Time.deltaTime;
+	}
+	if(Input.isKeyDown(79)){
+		iMods0[2] -= Time.deltaTime;
+	} else if(Input.isKeyDown(80)){
+		iMods0[2] += Time.deltaTime;
+		if(iMods0[2] > 1) iMods0[2] = 1; 
 	}
 }
